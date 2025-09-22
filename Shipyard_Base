@@ -1,0 +1,49 @@
+!alias shipyard embed
+<drac2>
+args,ch=argparse(&ARGS&),character()
+ship_data=load_json(get_gvar("fa2950fe-6073-4c2b-8e96-5fc8788ab9f7"))
+using(
+shipyard = "1523b952-9c76-451c-aa19-b171307258ab"
+)
+sizes=["tiny","small","medium","large","huge","gargantuan"]
+size_weights=[25,80,25,10,1,1]
+size=ship_data[str(args.last('size',randchoices(sizes,weights=size_weights)[0],str))]
+role_list=size["role"]
+role=role_list[args.last('role',randchoice(size["roles"]))]
+tier=args.last('tier',randchoices([0,1,2,3,4,5],weights=[20,20,10,5,2,1])[0],int)
+ship=shipyard.find(size,role,tier)
+if args.adv:
+  barter_check=roll("1d20kh1")+ch.skills.persuasion.value
+else:
+  barter_check=roll("1d20")+ch.skills.persuasion.value
+if args.last('b'):
+  barter_check=roll("1d20kh1")+ch.skills.persuasion.value+int(args.last('b'))
+else:
+  barter_check=roll("1d20")+ch.skills.persuasion.value
+discount_cost=int(int(ship["buy cost"])*(1-.01*(barter_check-14)*5))
+if barter_check >=15:
+  rapport=f"You manage to talk them into cutting the price! They are now offering it to you for {discount_cost}!"
+else:
+  rapport="The captain doesn't appear interested in negotiating, and their price is firm"
+ch.set_cvar("found_ship",ship)
+</drac2>
+-title "{{ch.name}} finds a ship!"
+-f "The *{{ship["ship name"]}}*| {{size["size_name"]}} tier {{tier}} {{ship["role name"]}}"
+-f "Hull Points:| {{ship["hull points"]}} ({{ship["hull die"]}})"
+-f "Shield Points:| {{ship["shield points"]}} ({{ship["shield die"]}})"
+-f "AC:| {{ship["ac"]}}"
+-f "Damage Reduction: {{ship["dr"]}}"
+-f "STR:{{ship["str"]}}(+{{ship["strMod"]}})  DEX:{{ship["dex"]}}(+{{ship["dexMod"]}})  CON:{{ship["con"]}}(+{{ship["conMod"]}})"
+-f "WIS:{{ship["wis"]}}(+{{ship["wisMod"]}})  INT:{{ship["int"]}}(+{{ship["intMod"]}})  CHA:{{ship["cha"]}}(+{{ship["chaMod"]}})"
+-f "This ship is proficiently equipped for {{ship["saves"]}} saving throws."
+-f "Armor: {{ship["armor"]}}
+Shield Type: {{ship["shield"]}}
+Reactor: {{ship["reactor"]}}
+Power Coupling: {{ship["coupling"]}}
+Speed: {{ship["speed"]}}"
+-f "This ship comes equipped with {{ship["stock"]}}, and has room for {{ship["base mods"]}} modifications and {{ship["max suites"]}} suites.
+It has a cargo capacity of {{ship["cargo"]}} tons."
+-f "The captain is offering to sell it to you for {{ship["buy cost"]}} credits. Maybe you can talk them down?"
+-f "Persuasion Check: {{barter_check}}"
+-f "{{rapport}}"
+-footer "!shipyard | -size # -role # -tier # adv, -b #"
