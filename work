@@ -1,0 +1,50 @@
+!alias work embed
+<drac2>
+ch=character()
+ch.set_cvar_nx("last_worked", time()-57601)
+rested=1 if float(time())-float(last_worked)>=57600 else err("You can only work once a day!")
+labor="&1&"
+labor_dict=load_json(get_gvar("03428ad9-902f-4971-8e0f-dafbe76bc019"))
+skills=labor_dict.skills
+kits=labor_dict.kits
+implements=labor_dict.implements
+using(
+faction_statistics="849a1a9b-91c0-433c-866f-32dd4c933380",
+baglib = "4119d62e-6a98-4153-bea9-0a99bb36da2c"
+)
+bagsLoaded = baglib.load_bags()
+labor_arg = labor[0].lower()
+chosen_labor=([skill for skill in skills if labor in skill.lower()]+[kit for kit in kits if labor in kit.lower()]+[implement for implement in implements if labor in implement.lower()]+[None])[0]
+Pe = proficiencyBonus if "&2&"=="p" else 2(proficiencyBonus) if "&2&" == "e" else 0
+sB = max(strengthMod,dexterityMod,constitutionMod,wisdomMod,intelligenceMod,charismaMod)
+work_roll = vroll("1d20")
+work_result=work_roll.total+Pe+sB
+work_roll_mod=25 if work_result >= 30 else 20 if work_result >= 25 else 15 if work_result >= 20 else 10 if work_result >= 15 else 5 if work_result >= 10 else 0
+faction_roll = vroll("1d20") if chosen_labor in faction_statistics.faction_activities else vroll("0d0")
+faction_bonus=faction_statistics.faction_pb+((faction_statistics.faction_high_stat-10)/2) if chosen_labor in faction_statistics.faction_activities else 0
+faction_result=faction_roll.total+faction_bonus
+faction_roll_mod=25 if faction_result >= 30 else 20 if faction_result >= 25 else 15 if faction_result >= 20 else 10 if faction_result >= 15 else 5 if faction_result >= 10 else 0
+faction_roll_report = f"{faction_roll} + {faction_bonus} = {faction_result}"
+payout_roll=vroll("1d100")
+payout_total=payout_roll.total+work_roll_mod+faction_roll_mod
+payout= payout_total*3
+payout_report = " does a spectacular job!" if payout_total >= 111 else " does a great job!" if payout_total >= 101 else " does an adequate job." if payout_total >= 71 else " does a poor job." if payout_total >= 41 else " does a terrible job!"
+baglib.modify_coins(bagsLoaded, 'cr', payout)
+baglib.save_bags(bagsLoaded)
+report=baglib.display_coins(bagsLoaded, 'cr')
+ch.set_cvar("last_worked", time())
+
+ch.create_cc_nx("workdays", 0)
+comp_roll = roll("1d8") if payout_roll.total<=10 and ch.cc_get("workdays")>=5 else 9
+complication = "You manage to outperform someone who has been working longer than you, and they’re not impressed." if comp_roll==1 else "You bump a coworker in a clearly accidental fashion, but they blow it out of proportion, causing everyone to dislike you." if comp_roll==2 else "A patron asks for a service not provided by your workplace, and asks for the manager when you try to explain this." if comp_roll==3 else "Your manager takes credit for the work you are doing, asserting it is their own." if comp_roll==4 else "One of your coworkers slows down their workload so you have to pick up their slack." if comp_roll==5 else "You sustain a small injury, resulting in a scar." if comp_roll==6 else "Your coworkers, as a group, tell your boss a series of baseless lies. Your boss believes them over you." if comp_roll==7 else "Your coworkers bestow a nickname on you based on an obscure, mundane thing you did or said. They no longer call you by your name." if comp_roll==8 else "You have an otherwise uneventful workday."
+ch.set_cc("workdays",0) if comp_roll<9 else ch.mod_cc("workdays",+1)
+ 
+</drac2>
+-title "<name> gets to work using <chosen_labor>!"
+-f "<name>'s efforts!|{{work_roll}} + {{Pe}} + {{sB}} = {{work_result}}"
+-f "Faction Roll|{{faction_roll_report}}"
+-f "Work roll:|{{payout_roll}} + {{work_roll_mod}} + {{faction_roll_mod}} = {{payout_total}}"
+-f "<name>{{payout_report}}"
+-f "<name> earns {{payout}} credits!"
+-f "{{complication}}"
+{{report[0].replace('Total Value:','')}... (NaN KB left)
