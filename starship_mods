@@ -1,1 +1,18 @@
-
+{categories:["engineering","operations","suite","universal","weapon"],
+"engineering":{
+  "Alternative Fuel Converter":{
+    "Grade":0,
+    "Prereqs":"None",
+    "Desc":"Your ship is equipped with an alternative fuel converter which allows the conversion of materials to a potential fuel source. Over the course of 10 minutes, a crewmember can make a constitution (Regulation) check (DC = 10 or half the number of days since the ship’s last refueling, whichever number is higher). On a success, the ship recovers one unit worth of fuel.
+This feature can be used a number of times equal to your ship’s tier (a minimum of once). All expended uses are regained when the ship undergoes refitting."
+    },
+  "Automated Protocols":{
+    "Grade":2,
+    "Prereqs":"Damage Control System",
+    "Desc":"You upgrade your damage control system. A crewmember can take the Patch action as a reaction. This feature can be used a number of times equal to your ship’s tier (a minimum of once). All expended uses are regained when the ship undergoes refitting. Additionally, you can add your ship’s intelligence modifier (minimum of +1) to whenever you roll hull dice to regain hull points.
+Finally, your ship is expertly equipped for Constitution (Patch) checks."
+    },
+  "Boarding Harpoon":{
+    "Grade":2,
+    "Prereqs":"Hardened Prow",
+    "Buzz
